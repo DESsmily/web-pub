@@ -63,14 +63,17 @@ sshCmd.command('del').description('删除ssh连接配置 (web-pub del test)')
 
 sshCmd.command('list').description('查看ssh连接配置 (web-pub list)')
     .action(async () => {
+        const tabls = []
         const conf = require('../config.json')
         if (Object.keys(conf.hosts).length) {
             Object.keys(conf.hosts).forEach(alias => {
                 const item = conf.hosts[alias]
-                console.table(
-                    [{ name: alias, host: item.host, port: item.port, username: item.username, password: item.password }],
-                )
+                tabls.push({ name: alias, host: item.host, port: item.port, username: item.username, password: item.password })
+                // console.table(
+                //     [{ name: alias, host: item.host, port: item.port, username: item.username, password: item.password }],
+                // )
             })
+            console.table(tabls)
 
         } else {
             console.log('配置为空');

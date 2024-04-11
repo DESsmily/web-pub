@@ -27,7 +27,21 @@ exports.sshOperation = async (sshName, remotePath) => {
         await ssh.mkdir(remotePath).then(() => {
             console.log('mkdir ' + remotePath + pc.green(' success'))
         })
-        await ssh.putDirectory('./', remotePath).then(() => {
+        console.log('正在上传中.....')
+        let countTotal = 0
+        let i = 0
+        await ssh.putDirectory('./', remotePath, {
+
+            transferOptions: {
+                step: (total_transferred, chunk, total) => {
+                    if (total_transferred > countTotal) {
+                        i++
+                        countTotal += total
+                    }
+                    process.stdout.write(`转移进度：${total_transferred} | 传递进度：${chunk} | 当前碎片总大小：${total} | 当前已上传大小： ${(countTotal / 1024 / 1024).toFixed(2)}MB\r`);
+                }
+            }
+        }).then(() => {
             console.log('copy to ' + remotePath + pc.green(' success'))
         })
         ssh.dispose()
