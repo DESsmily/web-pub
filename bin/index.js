@@ -98,14 +98,10 @@ program.command('use').description('使用ssh配置名称进行连接 部署')
             return 0
         }
         const fileList = fs.readdirSync('.')
-        if (fileList.includes('node_modules')) {
-            console.log('目录不应该存在node_modules');
-            return 0
-        }
-        if (!fileList.some(file => file.includes('.html'))) {
-            console.log('目录未找到html文件');
-            return 0
-        }
+        console.log('文件列表：');
+        fileList.forEach(file => {
+            console.log(`${file} ${fs.statSync(file).isFile() ? '文件' : '目录'}`);
+        })
         // 创建readline接口实例
         const r1 = readline.createInterface({
             input: process.stdin,
