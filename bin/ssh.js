@@ -6,6 +6,8 @@ const ssh = new NodeSSH()
 
 exports.sshOperation = async (sshName, remotePath) => {
     console.log(sshName, remotePath);
+    const filesize = (computedFileSize('./') / 1024 / 1024).toFixed(2)
+    console.log('文件大小：' + filesize + 'MB');
     if (!remotePath) {
         return
     }
@@ -56,3 +58,20 @@ exports.sshOperation = async (sshName, remotePath) => {
 
 
 // sshOperation()
+/** 计算文件目录大小 */
+function computedFileSize(_path) {
+    const path = require("node:path");
+    const fs = require("node:fs");
+
+    let totalSize = 0
+    const dirs = fs.readdirSync(_path)
+    for (const file of dirs) {
+        const curPath = path.resolve(_path, file)
+        if (fs.statSync(curPath).isDirectory()) {
+            totalSize += computedFileSize(curPath)
+        } else {
+            totalSize += fs.statSync(curPath).size
+        }
+    }
+    return totalSize
+}
