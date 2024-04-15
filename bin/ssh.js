@@ -36,6 +36,7 @@ exports.sshOperation = async (sshName, remotePath) => {
         let countTotal = 0
         const time = Date.now()
         await ssh.putDirectory('./', remotePath, {
+            sftp: true,
 
             transferOptions: {
                 step: (total_transferred, chunk, total) => {

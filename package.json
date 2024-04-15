@@ -1,6 +1,6 @@
 {
   "name": "web-pub",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "一款用于发布轻量化静态资源到服务器的脚本工具。",
   "main": "./bin/index.js",
   "bin": {
