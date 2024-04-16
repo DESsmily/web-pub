@@ -44,6 +44,11 @@
 - 删除指定ssh配置 `web-pub ssh del test`
     - `web-pub ssh del <name>`
 
+- 局部配置ssh
+  - `web-pub run -S <ip@port@user@pass> -R <remotePath>`
+    - `web-pub run -S 127.0.0.1@22@root@123456. -R /mnt/test`
+    - 可使用`web-pub run --help` 查看配置描述
+
 ### 部署
     - `web-pub use <ssh名称> <远程服务器部署路径>`
 ### 示例

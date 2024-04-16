@@ -4,30 +4,24 @@ const pc = require("picocolors");
 
 const ssh = new NodeSSH()
 
-exports.sshOperation = async (sshName, remotePath) => {
-    console.log(sshName, remotePath);
+exports.sshOperation = async (/** @type {{host: string, port: number, username: string, password: string, tryKeyboard: boolean} | null} */ sshConfig = null, remotePath) => {
+    // console.log(sshName, remotePath);
     const filesize = computedFileSize('./')
     console.log('文件大小：' + (filesize / 1024 / 1024).toFixed(2) + 'MB');
     if (!remotePath) {
         return
     }
-
-    const sshList = require('../config.json').hosts
-    const curHost = sshList[sshName]
-    console.log('开始部署到 ' + curHost.host + ' 服务器.....');
-    const sshConfig = {
-        host: curHost.host,
-        port: curHost.port,
-        username: curHost.username,
-        password: curHost.password,
-        tryKeyboard: curHost.tryKeyboard,
+    if (!sshConfig) {
+        return
     }
+    console.log('开始部署到 ' + sshConfig.host + ' 服务器.....');
+
     try {
         await ssh.connect(sshConfig).then(async () => {
             console.log('正在连接 ' + sshConfig.host + pc.green(' success'))
         })
-        await ssh.exec('rm', ['-rf', remotePath + '/static']).then(() => {
-            console.log(pc.green('清除目录static文件 success'))
+        await ssh.exec('rm', ['-rf', remotePath]).then(() => {
+            console.log(pc.green('清除目录文件 success'))
         })
         await ssh.mkdir(remotePath).then(() => {
             console.log('mkdir ' + remotePath + pc.green(' success'))
@@ -36,8 +30,7 @@ exports.sshOperation = async (sshName, remotePath) => {
         let countTotal = 0
         const time = Date.now()
         await ssh.putDirectory('./', remotePath, {
-            sftp: true,
-
+            recursive: true,
             transferOptions: {
                 step: (total_transferred, chunk, total) => {
                     if (total_transferred === total) {
