@@ -31,26 +31,30 @@
 
 👤 **Smilydes**
 
-* Github: [@github+DESsmily](https://github.com/DESsmily)
+- Github: [@github+DESsmily](https://github.com/DESsmily)
 
 ### 起步
 
 - `npm install web-pub -g`
 
-### ssh操作
-- 查看ssh配置 `web-pub ssh list`
-- 添加ssh配置 `web-pub ssh add <名称> <host@port> <user> <password>`
-    - `web-pub ssh add test 127.0.0.1@22 root 123456`
-- 删除指定ssh配置 `web-pub ssh del test`
-    - `web-pub ssh del <name>`
+### ssh 操作
 
-- 局部配置ssh
-  - `web-pub run -S <ip@port@user@pass> -R <remotePath>`
+- 查看 ssh 配置 `web-pub ssh list`
+- 添加 ssh 配置 `web-pub ssh add <名称> <host@port> <user> <password>`
+  - `web-pub ssh add test 127.0.0.1@22 root 123456`
+- 删除指定 ssh 配置 `web-pub ssh del test`
+
+  - `web-pub ssh del <name>`
+
+- 局部配置 ssh
+  - `web-pub run -S <ip@port@user@pass> -R <remotePath> -L [localPath 默认./ 用于指定本地路径]`
     - `web-pub run -S 127.0.0.1@22@root@123456. -R /mnt/test`
     - 可使用`web-pub run --help` 查看配置描述
 
 ### 部署
-    - `web-pub use <ssh名称> <远程服务器部署路径>`
+
+    - `web-pub use <ssh名称> <远程服务器部署路径> [本地路径 默认./]`
+
 ### 示例
 
 ```
@@ -59,7 +63,6 @@
 cd /web/dist
 web-pub use test /mnt/statics/test
 ```
-
 
 Give a ⭐️ if this project helped you!
 

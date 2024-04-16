@@ -4,7 +4,7 @@ const pc = require("picocolors");
 
 const ssh = new NodeSSH()
 
-exports.sshOperation = async (/** @type {{host: string, port: number, username: string, password: string, tryKeyboard: boolean} | null} */ sshConfig = null, remotePath) => {
+exports.sshOperation = async (/** @type {{host: string, port: number, username: string, password: string, tryKeyboard: boolean} | null} */ sshConfig = null, remotePath, localPath) => {
     // console.log(sshName, remotePath);
     const filesize = computedFileSize('./')
     console.log('文件大小：' + (filesize / 1024 / 1024).toFixed(2) + 'MB');
@@ -29,7 +29,7 @@ exports.sshOperation = async (/** @type {{host: string, port: number, username: 
         console.log('正在上传中.....')
         let countTotal = 0
         const time = Date.now()
-        await ssh.putDirectory('./', remotePath, {
+        await ssh.putDirectory(localPath || './', remotePath, {
             recursive: true,
             transferOptions: {
                 step: (total_transferred, chunk, total) => {

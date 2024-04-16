@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { program } = require('commander')
+const { program, Command } = require('commander')
 const path = require('node:path')
 const fs = require('node:fs')
 const readline = require('node:readline')
@@ -8,7 +8,6 @@ const pc = require("picocolors");
 
 
 program.version(require('../package.json').version)
-
 const sshCmd = program.command('ssh').description('ssh')
 
 
@@ -80,8 +79,9 @@ sshCmd.command('list').description('查看ssh连接配置 (web-pub list)')
 
 // 使用配置
 program.command('use').description('使用ssh配置名称进行连接 部署')
-    .arguments('<alias> <remotePath>', '配置名称 部署路径 （web-pub test /mnt/test）')
-    .action(async (alias, /** @type {string} */ remotePath) => {
+    .arguments('<alias> <remotePath> [localPath]', '配置名称 部署路径 （web-pub test /mnt/test [默认当前目录,(./) 可不输]）')
+    .action(async (alias, /** @type {string} */ remotePath, localPath) => {
+        console.log(alias, remotePath, localPath);
         if (!alias) {
             console.log('配置名称不能为空');
             return 0
@@ -98,7 +98,7 @@ program.command('use').description('使用ssh配置名称进行连接 部署')
             console.log('配置名称 ' + alias + ' 不存在');
             return 0
         }
-        runDeploy({ ...hosts[alias] }, remotePath)
+        runDeploy({ ...hosts[alias] }, remotePath, localPath)
 
     })
 
@@ -106,6 +106,7 @@ program.command('use').description('使用ssh配置名称进行连接 部署')
 program.command('run').description('配置ssh进行连接 部署')
     .option('-S, --sshConfig <ip@port@user@pass>', '服务器配置 例如 127.0.0.1@22@root@123')
     .option('-R, --remotePath <remotePath>', '部署路径 例如 /mnt/test')
+    .option('-L, --localPath [localPath]', '本地路径 默认当前目录（./) 可不填')
     .action(async (config) => {
         if (!config.sshConfig || !config.remotePath) {
             console.log(pc.red('配置项 --sshConfig或-S 和 --remotePath或-R 不能为空'));
@@ -131,7 +132,7 @@ program.command('run').description('配置ssh进行连接 部署')
             return 0
         }
 
-        runDeploy(sshConfig, config.remotePath)
+        runDeploy(sshConfig, config.remotePath,)
 
 
     })
@@ -141,12 +142,20 @@ program.parse(process.argv)
 
 
 // 运行部署
-function runDeploy( /** @type {{host: string, port: number, username: string, password: string, tryKeyboard: boolean} | null} */ sshConfig = null, remotePath) {
-    const fileList = fs.readdirSync('.')
+function runDeploy( /** @type {{host: string, port: number, username: string, password: string, tryKeyboard: boolean} | null} */ sshConfig = null, remotePath, localPath = '.') {
+    const fileList = fs.readdirSync(localPath || './')
     console.log('文件列表：');
-    fileList.forEach(file => {
-        console.log(`${file} ${fs.statSync(file).isFile() ? '文件' : '目录'}`);
+    const fileRecords = []
+    fileList.forEach(fileName => {
+        const file = fs.statSync(path.resolve(localPath || './', fileName))
+        fileRecords.push({
+            '名称': fileName.length > 15 ? fileName.slice(0, 15) + '...' : fileName,
+            '文件类型': file.isFile() ? fileName.split('.').pop() + '文件' : '目录',
+            '文件大小': file.size
+        })
+        // console.log(`${file} ${fs.statSync(path.resolve(localPath || './', file)).isFile() ? '文件' : '目录'}`);
     })
+    console.table(fileRecords)
     // 创建readline接口实例
     const r1 = readline.createInterface({
         input: process.stdin,
@@ -161,7 +170,7 @@ function runDeploy( /** @type {{host: string, port: number, username: string, pa
         }
         const { sshOperation } = require('./ssh.js')
 
-        await sshOperation({ ...sshConfig }, remotePath)
+        await sshOperation({ ...sshConfig }, remotePath, localPath)
         r1.close()
     })
 }
